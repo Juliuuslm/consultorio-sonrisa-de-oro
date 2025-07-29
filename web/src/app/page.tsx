@@ -301,9 +301,9 @@ export default function Home() {
       <AnimatePresence>
         {isLoading && (
           <motion.div
-            initial={{ opacity: 1 }}
+            initial={{ opacity: 1, y: 0 }}
             exit={{ 
-              clipPath: "circle(0% at 50% 50%)",
+              y: "-100%",
               transition: { duration: 0.8, ease: "easeInOut" }
             }}
             className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#0D9488] via-[#14B8A6] to-[#06B6D4] flex items-center justify-center"
