@@ -1,27 +1,35 @@
 "use client";
 
-import { Phone, Calendar, Award, Users, Star, Sparkles, Shield, Smile, Stethoscope, Baby, AlertCircle, ChevronLeft, ChevronRight, Palette, Gem, Tag, Clock, MapPin, Mail, MessageCircle, Facebook, Instagram, Youtube, Navigation } from "lucide-react";
+import { Phone, Calendar, Award, Users, Star, Sparkles, Shield, Smile, ChevronLeft, ChevronRight, Palette, Gem, Tag, Clock, MapPin, Mail, MessageCircle, Facebook, Instagram, Navigation } from "lucide-react";
 import { motion, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 export default function Home() {
   const servicesRef = useRef(null);
-  const isServicesInView = useInView(servicesRef, { once: true, threshold: 0.1 });
+  const isServicesInView = useInView(servicesRef, { once: true });
   
   const testimonialsRef = useRef(null);
-  const isTestimonialsInView = useInView(testimonialsRef, { once: true, threshold: 0.1 });
+  const isTestimonialsInView = useInView(testimonialsRef, { once: true });
   
   const footerRef = useRef(null);
-  const isFooterInView = useInView(footerRef, { once: true, threshold: 0.1 });
+  const isFooterInView = useInView(footerRef, { once: true });
 
   // Testimonials state and data
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   
   // Services popup state
-  const [activeServicePopup, setActiveServicePopup] = useState(null);
+  const [activeServicePopup, setActiveServicePopup] = useState<string | null>(null);
 
   // Services data with professional copy
-  const servicesData = {
+  const servicesData: Record<string, {
+    title: string;
+    subtitle: string;
+    description: string;
+    benefits: string[];
+    duration: string;
+    frequency: string;
+    price: string;
+  }> = {
     limpieza: {
       title: "Limpieza Dental Profesional",
       subtitle: "Prevención y salud bucal integral",
@@ -115,7 +123,7 @@ export default function Home() {
   };
 
   // Popup management functions
-  const openServicePopup = (serviceId) => {
+  const openServicePopup = (serviceId: string) => {
     setActiveServicePopup(serviceId);
     document.body.style.overflow = 'hidden';
   };
@@ -127,7 +135,7 @@ export default function Home() {
 
   // Close popup on escape key
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && activeServicePopup) {
         closeServicePopup();
       }
@@ -150,7 +158,7 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Handle contact form submission (fake)
-  const handleContactFormSubmit = async (e) => {
+  const handleContactFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingForm(true);
     
@@ -162,7 +170,7 @@ export default function Home() {
     document.body.style.overflow = 'hidden';
     
     // Reset form
-    e.target.reset();
+    (e.target as HTMLFormElement).reset();
   };
 
   const closeSuccessModal = () => {
@@ -172,7 +180,7 @@ export default function Home() {
 
   // Close success modal on escape key
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && showSuccessModal) {
         closeSuccessModal();
       }
@@ -236,9 +244,9 @@ export default function Home() {
     }
   ];
 
-  const nextTestimonial = () => {
+  const nextTestimonial = useCallback(() => {
     setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
   const prevTestimonial = () => {
     setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
@@ -251,7 +259,7 @@ export default function Home() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [currentTestimonial]);
+  }, [nextTestimonial]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" style={{ scrollBehavior: 'smooth' }}>
@@ -888,7 +896,7 @@ export default function Home() {
             >
               <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-xl">
                 {/* Quote Icon */}
-                <div className="text-6xl text-[#0D9488] mb-6">"</div>
+                <div className="text-6xl text-[#0D9488] mb-6">&quot;</div>
                 
                 {/* Testimonial Text */}
                 <motion.blockquote 
