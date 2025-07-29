@@ -146,6 +146,9 @@ export default function Home() {
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  // Mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // Handle contact form submission (fake)
   const handleContactFormSubmit = async (e) => {
     e.preventDefault();
@@ -180,6 +183,20 @@ export default function Home() {
       return () => document.removeEventListener('keydown', handleEscape);
     }
   }, [showSuccessModal]);
+
+  // Close mobile menu on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [isMobileMenuOpen]);
   
   const testimonials = [
     {
@@ -289,14 +306,97 @@ export default function Home() {
               {/* CTA Button */}
               <a 
                 href="#contacto"
-                className="bg-[#0D9488] hover:bg-[#14B8A6] text-white px-6 py-2 rounded-full font-semibold transition-colors"
+                className="hidden lg:block bg-[#0D9488] hover:bg-[#14B8A6] text-white px-6 py-2 rounded-full font-semibold transition-colors"
               >
                 Contacto
               </a>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </motion.header>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="lg:hidden bg-white border-b border-gray-200 fixed top-[76px] left-0 right-0 z-40 shadow-lg"
+        >
+          <div className="container mx-auto px-8 py-4">
+            <nav className="flex flex-col space-y-4">
+              <a 
+                href="#inicio" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+              >
+                Inicio
+              </a>
+              <a 
+                href="#servicios" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+              >
+                Servicios
+              </a>
+              <a 
+                href="#nosotros" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+              >
+                Nosotros
+              </a>
+              <a 
+                href="#promociones" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+              >
+                Promociones
+              </a>
+              <a 
+                href="#contacto" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+              >
+                Contacto
+              </a>
+              
+              {/* Mobile CTA Buttons */}
+              <div className="flex flex-col gap-3 pt-4 border-t border-gray-200">
+                <a 
+                  href="tel:+525518366890"
+                  className="flex items-center justify-center gap-2 border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-4 py-3 rounded-full transition-colors font-medium"
+                >
+                  <Phone className="w-4 h-4" />
+                  Llamar: +52 551 836 6890
+                </a>
+                <a 
+                  href="#contacto"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="bg-[#0D9488] hover:bg-[#14B8A6] text-white px-6 py-3 rounded-full font-semibold transition-colors text-center"
+                >
+                  Agendar Consulta
+                </a>
+              </div>
+            </nav>
+          </div>
+        </motion.div>
+      )}
 
       {/* Hero Section */}
       <section id="inicio" className="container mx-auto px-8 py-16 lg:py-24 min-h-[96vh] flex items-center">
@@ -306,26 +406,26 @@ export default function Home() {
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            className="space-y-10"
+            className="space-y-10 text-center lg:text-left"
           >
             <div className="space-y-4">
-              <h1 className="text-6xl lg:text-8xl font-bold text-[#0D9488] leading-[0.95]">
+              <h1 className="text-4xl lg:text-8xl font-bold text-[#0D9488] leading-[0.95]">
                 Transformamos Tu Sonrisa
-                <span className="block text-[4.5xl] lg:text-6xl text-gray-700">Desde La Primera Cita</span>
+                <span className="block text-3xl lg:text-6xl text-gray-700">Desde La Primera Cita</span>
               </h1>
               
-              <p className="text-xl text-gray-600 max-w-md leading-relaxed font-medium">
+              <p className="text-lg text-gray-600 max-w-md leading-relaxed font-medium mx-auto lg:mx-0">
                 Hacerte sonreír es lo que hacemos mejor.
               </p>
             </div>
 
             {/* CTA Buttons */}
-            <div className="space-y-4 lg:space-y-3">
-              <button className="bg-[#0D9488] hover:bg-[#14B8A6] text-white px-16 py-5 rounded-full text-xl font-semibold transition-colors w-full lg:w-auto shadow-lg hover:shadow-xl">
+            <div className="space-y-4 lg:space-y-3 flex flex-col lg:flex-row lg:gap-4">
+              <button className="bg-[#0D9488] hover:bg-[#14B8A6] text-white px-12 py-4 rounded-full text-base font-semibold transition-colors w-full lg:w-auto shadow-lg hover:shadow-xl">
                 Reserva tu Consulta GRATIS
               </button>
               
-              <button className="border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-12 py-4 rounded-full text-lg font-semibold transition-colors flex items-center justify-center gap-3 w-full lg:w-auto">
+              <button className="border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-8 py-3 rounded-full text-base font-semibold transition-colors flex items-center justify-center gap-3 w-full lg:w-auto">
                 <Phone className="w-5 h-5" />
                 Llama Ahora: +52 551 836 6890
               </button>
@@ -334,7 +434,7 @@ export default function Home() {
             {/* Trust Elements & Social Proof */}
             <div className="space-y-4">
               {/* Ratings */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 justify-center lg:justify-start">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -344,7 +444,7 @@ export default function Home() {
               </div>
 
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-2 text-sm">
+              <div className="flex flex-wrap gap-2 text-sm justify-center lg:justify-start">
                 <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1">
                   <Award className="w-4 h-4 text-[#0D9488]" />
                   <span className="font-medium text-gray-600">5+ Años Experiencia</span>
@@ -360,21 +460,49 @@ export default function Home() {
               </div>
 
               {/* Location */}
-              <div className="flex items-center gap-3 text-base text-gray-600">
+              <div className="flex items-center gap-3 text-base text-gray-600 justify-center lg:justify-start">
                 <div className="w-2 h-2 bg-[#0D9488] rounded-full"></div>
                 <span className="font-medium">Colonia El Mirador, Puebla</span>
               </div>
             </div>
+
+            {/* Doctor Image and Card - Only on Mobile */}
+            <motion.div 
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
+              className="flex justify-center pt-8 lg:hidden"
+            >
+              <div className="relative w-full max-w-xs">
+                {/* Doctor Image */}
+                <div className="relative">
+                  <img
+                    src="https://img.freepik.com/fotos-premium/mujer-dentista-sosteniendo-herramientas-aisladas-sobre-fondo-blanco-feliz-sonriente_1368-330456.jpg"
+                    alt="Dra. Paulina Herrera Torres - Dentista especialista en estética dental"
+                    className="w-full aspect-[4/5] object-cover object-center rounded-[2rem] shadow-xl"
+                  />
+                </div>
+                
+                {/* Doctor Info Card - Below Image */}
+                <div className="-mt-12 bg-white rounded-[2rem] pt-16 px-6 pb-6 shadow-lg border border-gray-100">
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Dra. Paulina Herrera Torres</h3>
+                    <p className="text-[#0D9488] font-semibold">Especialista en Diseño de Sonrisa</p>
+                    <p className="text-sm text-gray-500 mt-1">Atención personalizada</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
 
-          {/* Image Right - Doctor Photo */}
+          {/* Image Right - Desktop Only */}
           <motion.div 
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-            className="relative lg:justify-self-end order-first lg:order-last"
+            className="relative lg:justify-self-end hidden lg:block"
           >
-            <div className="relative w-full max-w-md mx-auto">
+            <div className="relative w-full max-w-xs lg:max-w-md mx-auto">
               {/* Doctor Image */}
               <div className="relative">
                 <img
@@ -1046,7 +1174,7 @@ export default function Home() {
           {/* Contact Content */}
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Contact Form Left */}
-            <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-xl sticky top-8">
+            <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-xl lg:sticky lg:top-8">
               {/* Doctor Avatar */}
               <div className="flex items-center gap-4 mb-8">
                 <div className="relative">
