@@ -1,7 +1,7 @@
 "use client";
 
 import { Phone, Calendar, Award, Users, Star, Sparkles, Shield, Smile, ChevronLeft, ChevronRight, Palette, Gem, Tag, Clock, MapPin, Mail, MessageCircle, Facebook, Instagram, Navigation } from "lucide-react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect, useCallback } from "react";
 
 export default function Home() {
@@ -16,6 +16,7 @@ export default function Home() {
 
   // Testimonials state and data
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isTestimonialsPaused, setIsTestimonialsPaused] = useState(false);
   
   // Services popup state
   const [activeServicePopup, setActiveServicePopup] = useState<string | null>(null);
@@ -157,6 +158,10 @@ export default function Home() {
   // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Loader and scroll states
+  const [isLoading, setIsLoading] = useState(true);
+  const [isHeaderCompact, setIsHeaderCompact] = useState(false);
+
   // Handle contact form submission (fake)
   const handleContactFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,6 +210,33 @@ export default function Home() {
       return () => window.removeEventListener('scroll', handleScroll);
     }
   }, [isMobileMenuOpen]);
+
+  // Loader effect
+  useEffect(() => {
+    // Prevent scroll during loading
+    document.body.style.overflow = 'hidden';
+    
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      document.body.style.overflow = 'unset';
+    }, 2500); // 2.5 seconds
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  // Header scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setIsHeaderCompact(scrollY > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   const testimonials = [
     {
@@ -252,25 +284,109 @@ export default function Home() {
     setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
-  // Auto-play testimonials every 5 seconds
+  // Auto-play testimonials every 5 seconds (with pause functionality)
   useEffect(() => {
-    const interval = setInterval(() => {
-      nextTestimonial();
-    }, 5000);
+    if (!isTestimonialsPaused) {
+      const interval = setInterval(() => {
+        nextTestimonial();
+      }, 5000);
 
-    return () => clearInterval(interval);
-  }, [nextTestimonial]);
+      return () => clearInterval(interval);
+    }
+  }, [nextTestimonial, isTestimonialsPaused]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" style={{ scrollBehavior: 'smooth' }}>
+    <>
+      {/* Loft Loader */}
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ 
+              clipPath: "circle(0% at 50% 50%)",
+              transition: { duration: 0.8, ease: "easeInOut" }
+            }}
+            className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#0D9488] via-[#14B8A6] to-[#06B6D4] flex items-center justify-center"
+          >
+            {/* Animated Logo/Brand */}
+            <motion.div
+              initial={{ scale: 0, rotate: -180, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+              className="text-center"
+            >
+              <motion.div
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
+                className="text-6xl lg:text-8xl font-bold text-white mb-4"
+              >
+                <Smile className="w-24 h-24 lg:w-32 lg:h-32 mx-auto mb-4" />
+              </motion.div>
+              <motion.h1
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 1 }}
+                className="text-2xl lg:text-4xl font-bold text-white"
+              >
+                Sonrisa de Oro
+              </motion.h1>
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 1.3 }}
+                className="h-1 bg-white/50 mx-auto mt-4 rounded-full"
+                style={{ width: '120px' }}
+              />
+            </motion.div>
+            
+            {/* Animated Background Elements */}
+            <motion.div
+              animate={{ 
+                rotate: 360,
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ 
+                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              }}
+              className="absolute top-20 left-20 w-32 h-32 border-4 border-white/20 rounded-full"
+            />
+            <motion.div
+              animate={{ 
+                rotate: -360,
+                y: [0, -20, 0]
+              }}
+              transition={{ 
+                rotate: { duration: 15, repeat: Infinity, ease: "linear" },
+                y: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+              }}
+              className="absolute bottom-32 right-32 w-24 h-24 border-4 border-white/30 rounded-full"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" style={{ scrollBehavior: 'smooth' }}>
       {/* Header */}
       <motion.header 
         initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        animate={{ 
+          y: 0, 
+          opacity: 1,
+          height: isHeaderCompact ? "64px" : "80px"
+        }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100"
       >
-        <div className="container mx-auto px-8 py-4">
+        <motion.div 
+          animate={{ 
+            paddingTop: isHeaderCompact ? "8px" : "16px",
+            paddingBottom: isHeaderCompact ? "8px" : "16px"
+          }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="container mx-auto px-8"
+        >
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-3">
@@ -283,20 +399,40 @@ export default function Home() {
 
             {/* Navigation */}
             <nav className="hidden lg:flex items-center gap-8">
-              <a href="#inicio" className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium">
+              <a 
+                href="#inicio" 
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium relative group"
+              >
                 Inicio
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[#0D9488] group-hover:w-full group-hover:left-0 transition-all duration-300 ease-out"></span>
               </a>
-              <a href="#servicios" className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium">
+              <a 
+                href="#servicios" 
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium relative group"
+              >
                 Servicios
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[#0D9488] group-hover:w-full group-hover:left-0 transition-all duration-300 ease-out"></span>
               </a>
-              <a href="#nosotros" className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium">
+              <a 
+                href="#nosotros" 
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium relative group"
+              >
                 Nosotros
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[#0D9488] group-hover:w-full group-hover:left-0 transition-all duration-300 ease-out"></span>
               </a>
-              <a href="#promociones" className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium">
+              <a 
+                href="#promociones" 
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium relative group"
+              >
                 Promociones
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[#0D9488] group-hover:w-full group-hover:left-0 transition-all duration-300 ease-out"></span>
               </a>
-              <a href="#contacto" className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium">
+              <a 
+                href="#contacto" 
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium relative group"
+              >
                 Contacto
+                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[#0D9488] group-hover:w-full group-hover:left-0 transition-all duration-300 ease-out"></span>
               </a>
             </nav>
 
@@ -307,7 +443,12 @@ export default function Home() {
                 href="tel:+525518366890"
                 className="hidden md:flex items-center gap-2 border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-4 py-2 rounded-full transition-colors"
               >
-                <Phone className="w-4 h-4" />
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Phone className="w-4 h-4" />
+                </motion.div>
                 <span className="font-medium">+52 551 836 6890</span>
               </a>
 
@@ -320,21 +461,32 @@ export default function Home() {
               </a>
 
               {/* Mobile Menu Button */}
-              <button
+              <motion.button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors relative"
+                whileTap={{ scale: 0.95 }}
               >
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {isMobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
+                <div className="w-6 h-6 flex flex-col justify-center items-center">
+                  <motion.span
+                    animate={isMobileMenuOpen ? { rotate: 45, y: 0 } : { rotate: 0, y: -8 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="block h-0.5 w-6 bg-gray-600 rounded-full origin-center"
+                  />
+                  <motion.span
+                    animate={isMobileMenuOpen ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="block h-0.5 w-6 bg-gray-600 rounded-full mt-1.5"
+                  />
+                  <motion.span
+                    animate={isMobileMenuOpen ? { rotate: -45, y: 0 } : { rotate: 0, y: 8 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="block h-0.5 w-6 bg-gray-600 rounded-full mt-1.5 origin-center"
+                  />
+                </div>
+              </motion.button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </motion.header>
 
       {/* Mobile Menu */}
@@ -557,9 +709,18 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               className="bg-white rounded-[2rem] p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
             >
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto">
-                <Sparkles className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Sparkles className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Limpieza Dental</h3>
               <p className="text-gray-600 text-center mb-6">
                 Mantenimiento preventivo para una sonrisa saludable y brillante con tecnología ultrasónica moderna.
@@ -581,9 +742,18 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               className="bg-white rounded-[2rem] p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
             >
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Shield className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Ortodoncia</h3>
               <p className="text-gray-600 text-center mb-6">
                 Alineación perfecta de tus dientes con brackets tradicionales o modernos sistemas invisibles.
@@ -605,9 +775,18 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               className="bg-white rounded-[2rem] p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
             >
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto">
-                <Palette className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Palette className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Resinas Dentales</h3>
               <p className="text-gray-600 text-center mb-6">
                 Restauraciones estéticas con materiales de última generación que imitan el color natural del diente.
@@ -629,9 +808,18 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               className="bg-white rounded-[2rem] p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
             >
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto">
-                <Gem className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Gem className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Carillas Dentales</h3>
               <p className="text-gray-600 text-center mb-6">
                 Láminas ultra delgadas de porcelana para corregir forma, color y tamaño de tus dientes.
@@ -653,9 +841,18 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               className="bg-white rounded-[2rem] p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
             >
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto">
-                <Smile className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Smile className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Diseño de Sonrisa</h3>
               <p className="text-gray-600 text-center mb-6">
                 Transformación completa de tu sonrisa con carillas, resinas y blanqueamiento personalizado.
@@ -677,9 +874,18 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               className="bg-white rounded-[2rem] p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
             >
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto">
-                <Star className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Star className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Blanqueamiento</h3>
               <p className="text-gray-600 text-center mb-6">
                 Aclaramiento dental profesional para recuperar el blanco natural de tu sonrisa.
@@ -888,36 +1094,60 @@ export default function Home() {
           {/* Testimonials Content */}
           <div className="grid lg:grid-cols-[2fr_1fr] gap-16 items-center">
             {/* Main Testimonial Left */}
-            <motion.div 
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.1}
+              onDragEnd={(event, info) => {
+                const threshold = 50;
+                if (info.offset.x > threshold) {
+                  prevTestimonial();
+                } else if (info.offset.x < -threshold) {
+                  nextTestimonial();
+                }
+              }}
+              className="lg:cursor-default cursor-grab active:cursor-grabbing"
+            >
+              <motion.div 
               initial={{ x: -100, opacity: 0 }}
               animate={isTestimonialsInView ? { x: 0, opacity: 1 } : {}}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative"
+              onMouseEnter={() => setIsTestimonialsPaused(true)}
+              onMouseLeave={() => setIsTestimonialsPaused(false)}
             >
-              <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-xl">
+              <motion.div 
+                className="bg-white rounded-3xl p-8 lg:p-12 shadow-xl"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
                 {/* Quote Icon */}
                 <div className="text-6xl text-[#0D9488] mb-6">&quot;</div>
                 
                 {/* Testimonial Text */}
-                <motion.blockquote 
-                  key={currentTestimonial}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-xl lg:text-2xl text-gray-700 leading-relaxed mb-8"
-                >
-                  {testimonials[currentTestimonial].text}
-                </motion.blockquote>
+                <AnimatePresence mode="wait">
+                  <motion.blockquote 
+                    key={currentTestimonial}
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    className="text-xl lg:text-2xl text-gray-700 leading-relaxed mb-8"
+                  >
+                    {testimonials[currentTestimonial].text}
+                  </motion.blockquote>
+                </AnimatePresence>
                 
                 {/* Patient Info */}
-                <motion.div 
-                  key={`patient-${currentTestimonial}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                  className="flex items-center gap-4"
-                >
+                <AnimatePresence mode="wait">
+                  <motion.div 
+                    key={`patient-${currentTestimonial}`}
+                    initial={{ opacity: 0, y: 15, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -15, scale: 0.9 }}
+                    transition={{ duration: 0.4, ease: "easeInOut", delay: 0.1 }}
+                    className="flex items-center gap-4"
+                  >
                   <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-xl">{testimonials[currentTestimonial].initials}</span>
                   </div>
@@ -929,8 +1159,10 @@ export default function Home() {
                       ))}
                     </div>
                   </div>
-                </motion.div>
-              </div>
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
+            </motion.div>
             </motion.div>
 
             {/* Patient Avatars Right */}
@@ -1047,9 +1279,18 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto mt-4">
-                <Sparkles className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto mt-4"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Sparkles className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
                 Limpieza + Revisión Completa
@@ -1085,9 +1326,18 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto mt-4">
-                <Smile className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto mt-4"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Smile className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
                 Evaluación Diseño de Sonrisa
@@ -1123,9 +1373,18 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto mt-4">
-                <Calendar className="w-8 h-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-16 h-16 bg-[#0D9488] rounded-full flex items-center justify-center mb-6 mx-auto mt-4"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  whileHover={{ rotate: 5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <Calendar className="w-8 h-8 text-white" />
+                </motion.div>
+              </motion.div>
               
               <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
                 Primera Consulta 50% OFF
@@ -1208,7 +1467,7 @@ export default function Home() {
                     name="name"
                     required
                     placeholder="Tu nombre completo"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent outline-none transition-colors placeholder:text-gray-600"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent focus:shadow-lg focus:shadow-[#0D9488]/20 outline-none transition-all duration-300 placeholder:text-gray-600"
                   />
                 </div>
 
@@ -1221,7 +1480,7 @@ export default function Home() {
                     name="email"
                     required
                     placeholder="tu.email@ejemplo.com"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent outline-none transition-colors placeholder:text-gray-600"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent focus:shadow-lg focus:shadow-[#0D9488]/20 outline-none transition-all duration-300 placeholder:text-gray-600"
                   />
                 </div>
 
@@ -1233,7 +1492,7 @@ export default function Home() {
                     type="tel"
                     name="phone"
                     placeholder="+52 551 836 6890"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent outline-none transition-colors placeholder:text-gray-600"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent focus:shadow-lg focus:shadow-[#0D9488]/20 outline-none transition-all duration-300 placeholder:text-gray-600"
                   />
                 </div>
 
@@ -1245,7 +1504,7 @@ export default function Home() {
                     rows={4}
                     name="message"
                     placeholder="Describe tu consulta o el servicio que te interesa..."
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent outline-none transition-colors resize-none placeholder:text-gray-600"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:border-transparent focus:shadow-lg focus:shadow-[#0D9488]/20 outline-none transition-all duration-300 resize-none placeholder:text-gray-600"
                   ></textarea>
                 </div>
 
@@ -1596,6 +1855,42 @@ export default function Home() {
           {/* Overlay */}
           <div className="absolute inset-0 bg-[#134E4A] opacity-33" />
           
+          {/* Confetti Animation */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(20)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ 
+                  x: "50%", 
+                  y: "50%", 
+                  opacity: 1, 
+                  scale: 0 
+                }}
+                animate={{ 
+                  x: `${50 + (Math.random() - 0.5) * 100}%`, 
+                  y: `${50 + (Math.random() - 0.5) * 100}%`, 
+                  opacity: 0, 
+                  scale: 1,
+                  rotate: Math.random() * 360
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  ease: "easeOut",
+                  delay: i * 0.1
+                }}
+                className={`absolute w-3 h-3 ${
+                  i % 3 === 0 ? 'bg-[#0D9488]' : 
+                  i % 3 === 1 ? 'bg-yellow-400' : 'bg-green-400'
+                } rounded-full`}
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }}
+              />
+            ))}
+          </div>
+          
           {/* Modal */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -1639,6 +1934,7 @@ export default function Home() {
           </motion.div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
