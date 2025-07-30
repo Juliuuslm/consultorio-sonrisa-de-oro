@@ -11,8 +11,6 @@ export default function Home() {
   const testimonialsRef = useRef(null);
   const isTestimonialsInView = useInView(testimonialsRef, { once: true });
   
-  const footerRef = useRef(null);
-  const isFooterInView = useInView(footerRef, { once: true });
 
   // Testimonials state and data
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -161,6 +159,7 @@ export default function Home() {
   // Loader and scroll states
   const [isLoading, setIsLoading] = useState(true);
   const [isHeaderCompact, setIsHeaderCompact] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Handle contact form submission (fake)
   const handleContactFormSubmit = async (e: React.FormEvent) => {
@@ -237,6 +236,17 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Mobile detection effect
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const testimonials = [
     {
@@ -308,66 +318,27 @@ export default function Home() {
             }}
             className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#0D9488] via-[#14B8A6] to-[#06B6D4] flex items-center justify-center"
           >
-            {/* Animated Logo/Brand */}
+            {/* Animated Logo */}
             <motion.div
               initial={{ scale: 0, rotate: -180, opacity: 0 }}
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
               className="text-center"
             >
-              <motion.div
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
-                className="text-6xl lg:text-8xl font-bold text-white mb-4"
-              >
-                <Smile className="w-24 h-24 lg:w-32 lg:h-32 mx-auto mb-4" />
-              </motion.div>
-              <motion.h1
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 1 }}
-                className="text-2xl lg:text-4xl font-bold text-white"
-              >
-                Sonrisa de Oro
-              </motion.h1>
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 1.3 }}
-                className="h-1 bg-white/50 mx-auto mt-4 rounded-full"
-                style={{ width: '120px' }}
+              <motion.img
+                src="/logo.png"
+                alt="Sonrisa de Oro - Logo"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
+                className="w-24 h-24 lg:w-32 lg:h-32 mx-auto rounded-[1rem] shadow-2xl"
               />
             </motion.div>
-            
-            {/* Animated Background Elements */}
-            <motion.div
-              animate={{ 
-                rotate: 360,
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ 
-                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-              }}
-              className="absolute top-20 left-20 w-32 h-32 border-4 border-white/20 rounded-full"
-            />
-            <motion.div
-              animate={{ 
-                rotate: -360,
-                y: [0, -20, 0]
-              }}
-              transition={{ 
-                rotate: { duration: 15, repeat: Infinity, ease: "linear" },
-                y: { duration: 3, repeat: Infinity, ease: "easeInOut" }
-              }}
-              className="absolute bottom-32 right-32 w-24 h-24 border-4 border-white/30 rounded-full"
-            />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" style={{ scrollBehavior: 'smooth' }}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-x-hidden" style={{ scrollBehavior: 'smooth' }}>
       {/* Header */}
       <motion.header 
         initial={{ y: -100, opacity: 0 }}
@@ -385,7 +356,7 @@ export default function Home() {
             paddingBottom: isHeaderCompact ? "8px" : "16px"
           }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="container mx-auto px-8"
+          className="container mx-auto px-4 sm:px-8"
         >
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -461,29 +432,18 @@ export default function Home() {
               </a>
 
               {/* Mobile Menu Button */}
-              <motion.button
+              <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors relative"
-                whileTap={{ scale: 0.95 }}
+                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
               >
-                <div className="w-6 h-6 flex flex-col justify-center items-center">
-                  <motion.span
-                    animate={isMobileMenuOpen ? { rotate: 45, y: 0 } : { rotate: 0, y: -8 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="block h-0.5 w-6 bg-gray-600 rounded-full origin-center"
-                  />
-                  <motion.span
-                    animate={isMobileMenuOpen ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="block h-0.5 w-6 bg-gray-600 rounded-full mt-1.5"
-                  />
-                  <motion.span
-                    animate={isMobileMenuOpen ? { rotate: -45, y: 0 } : { rotate: 0, y: 8 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="block h-0.5 w-6 bg-gray-600 rounded-full mt-1.5 origin-center"
-                  />
-                </div>
-              </motion.button>
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M4 12h16M4 17h16" />
+                  )}
+                </svg>
+              </button>
             </div>
           </div>
         </motion.div>
@@ -498,40 +458,40 @@ export default function Home() {
           transition={{ duration: 0.3 }}
           className="lg:hidden bg-white border-b border-gray-200 fixed top-[76px] left-0 right-0 z-40 shadow-lg"
         >
-          <div className="container mx-auto px-8 py-4">
-            <nav className="flex flex-col space-y-4">
+          <div className="container mx-auto px-4 sm:px-8 py-4">
+            <nav className="flex flex-col space-y-1">
               <a 
                 href="#inicio" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-1"
               >
                 Inicio
               </a>
               <a 
                 href="#servicios" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-1"
               >
                 Servicios
               </a>
               <a 
                 href="#nosotros" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-1"
               >
                 Nosotros
               </a>
               <a 
                 href="#promociones" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-1"
               >
                 Promociones
               </a>
               <a 
                 href="#contacto" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-2"
+                className="text-gray-700 hover:text-[#0D9488] transition-colors font-medium py-1"
               >
                 Contacto
               </a>
@@ -559,15 +519,10 @@ export default function Home() {
       )}
 
       {/* Hero Section */}
-      <section id="inicio" className="container mx-auto px-8 py-16 lg:py-24 min-h-[96vh] flex items-center">
-        <div className="grid lg:grid-cols-[3fr_2fr] gap-16 items-center w-full">
+      <section id="inicio" className="container mx-auto px-4 sm:px-8 py-16 lg:py-24 min-h-[96vh] flex items-center">
+        <div className="grid lg:grid-cols-[3fr_2fr] gap-8 lg:gap-16 items-center w-full">
           {/* Content Left */}
-          <motion.div 
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            className="space-y-10 text-center lg:text-left"
-          >
+          <div className="space-y-10 text-center lg:text-left">
             <div className="space-y-4">
               <h1 className="text-4xl lg:text-8xl font-bold text-[#0D9488] leading-[0.95]">
                 Transformamos Tu Sonrisa
@@ -581,13 +536,13 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="space-y-4 lg:space-y-3 flex flex-col lg:flex-row lg:gap-4">
-              <button className="bg-[#0D9488] hover:bg-[#14B8A6] text-white px-12 py-4 rounded-full text-base font-semibold transition-colors w-full lg:w-auto shadow-lg hover:shadow-xl">
+              <button className="bg-[#0D9488] hover:bg-[#14B8A6] text-white px-6 lg:px-12 py-4 rounded-full text-base font-semibold transition-colors w-full lg:w-auto shadow-lg hover:shadow-xl">
                 Reserva tu Consulta GRATIS
               </button>
               
-              <button className="border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-8 py-3 rounded-full text-base font-semibold transition-colors flex items-center justify-center gap-3 w-full lg:w-auto">
-                <Phone className="w-5 h-5" />
-                Llama Ahora: +52 551 836 6890
+              <button className="border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-4 lg:px-8 py-3 rounded-full text-sm lg:text-base font-semibold transition-colors flex items-center justify-center gap-2 lg:gap-3 w-full lg:w-auto">
+                <Phone className="w-4 h-4 lg:w-5 lg:h-5" />
+                <span className="hidden sm:inline">Llama Ahora: </span>+52 551 836 6890
               </button>
             </div>
 
@@ -642,7 +597,7 @@ export default function Home() {
                     className="w-full aspect-[4/5] object-cover object-center rounded-[2rem] shadow-xl"
                   />
                 </div>
-                
+              
                 {/* Doctor Info Card - Below Image */}
                 <div className="-mt-12 bg-white rounded-[2rem] pt-16 px-6 pb-6 shadow-lg border border-gray-100">
                   <div className="text-center">
@@ -653,41 +608,40 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-          </motion.div>
+          </div>
 
-          {/* Image Right - Desktop Only */}
-          <motion.div 
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-            className="relative lg:justify-self-end hidden lg:block"
-          >
-            <div className="relative w-full max-w-xs lg:max-w-md mx-auto">
-              {/* Doctor Image */}
+          {/* Content Right - Desktop Doctor Image */}
+          <div className="hidden lg:flex items-center justify-center">
+            <motion.div 
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
+              className="relative w-full max-w-lg"
+            >
               <div className="relative">
                 <img
                   src="https://img.freepik.com/fotos-premium/mujer-dentista-sosteniendo-herramientas-aisladas-sobre-fondo-blanco-feliz-sonriente_1368-330456.jpg"
                   alt="Dra. Paulina Herrera Torres - Dentista especialista en estética dental"
-                  className="w-full aspect-[4/5] object-cover object-center rounded-[2rem] shadow-xl"
+                  className="w-full aspect-[4/5] object-cover object-center rounded-[3rem] shadow-2xl"
                 />
               </div>
               
-              {/* Doctor Info Card - Below Image */}
-              <div className="-mt-12 bg-white rounded-[2rem] pt-16 px-6 pb-6 shadow-lg border border-gray-100">
+              {/* Doctor Info Card - Desktop */}
+              <div className="-mt-16 ml-8 bg-white rounded-[2rem] pt-20 px-8 pb-8 shadow-xl border border-gray-100 max-w-sm">
                 <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">Dra. Paulina Herrera Torres</h3>
-                  <p className="text-[#0D9488] font-semibold">Especialista en Diseño de Sonrisa</p>
-                  <p className="text-sm text-gray-500 mt-1">Atención personalizada</p>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">Dra. Paulina Herrera Torres</h3>
+                  <p className="text-[#0D9488] font-semibold text-lg">Especialista en Diseño de Sonrisa</p>
+                  <p className="text-gray-500 mt-2">Atención personalizada y resultados excepcionales</p>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Services Section */}
       <section id="servicios" ref={servicesRef} className="bg-gradient-to-br from-[#ECFEFF] via-[#99F6E4] to-[#ECFEFF] py-32">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-4 sm:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-[#0D9488] mb-4">
@@ -921,7 +875,7 @@ export default function Home() {
 
       {/* About Us Section */}
       <section id="nosotros" className="py-32 bg-white">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-4 sm:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-[#0D9488] mb-4">
@@ -930,12 +884,12 @@ export default function Home() {
           </div>
 
           {/* Content Layout */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Image Left */}
             <div className="relative order-first lg:order-first">
-              <div className="relative w-full max-w-lg mx-auto">
+              <div className="relative w-full max-w-lg mx-auto overflow-hidden">
                 {/* Background Circle */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#99F6E4] to-[#ECFEFF] rounded-full scale-110"></div>
+                <div className="absolute inset-2 bg-gradient-to-br from-[#99F6E4] to-[#ECFEFF] rounded-full"></div>
                 
                 {/* Doctor Image */}
                 <div className="relative z-10">
@@ -1080,7 +1034,7 @@ export default function Home() {
 
       {/* Testimonials Section */}
       <section id="testimonios" ref={testimonialsRef} className="py-32 bg-gradient-to-br from-[#ECFEFF] via-[#99F6E4] to-[#ECFEFF]">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-4 sm:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-[#0D9488] mb-4">
@@ -1092,24 +1046,26 @@ export default function Home() {
           </div>
 
           {/* Testimonials Content */}
-          <div className="grid lg:grid-cols-[2fr_1fr] gap-16 items-center">
+          <div className="grid lg:grid-cols-[2fr_1fr] gap-8 lg:gap-16 items-center overflow-hidden">
             {/* Main Testimonial Left */}
             <motion.div
-              drag="x"
+              drag={isMobile ? "x" : false}
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.1}
+              dragElastic={0.05}
               onDragEnd={(event, info) => {
-                const threshold = 50;
-                if (info.offset.x > threshold) {
-                  prevTestimonial();
-                } else if (info.offset.x < -threshold) {
-                  nextTestimonial();
+                if (isMobile) {
+                  const threshold = 50;
+                  if (info.offset.x > threshold) {
+                    prevTestimonial();
+                  } else if (info.offset.x < -threshold) {
+                    nextTestimonial();
+                  }
                 }
               }}
               className="lg:cursor-default cursor-grab active:cursor-grabbing"
             >
               <motion.div 
-              initial={{ x: -100, opacity: 0 }}
+              initial={{ x: -20, opacity: 0 }}
               animate={isTestimonialsInView ? { x: 0, opacity: 1 } : {}}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative"
@@ -1167,7 +1123,7 @@ export default function Home() {
 
             {/* Patient Avatars Right */}
             <motion.div 
-              initial={{ x: 100, opacity: 0 }}
+              initial={{ x: 20, opacity: 0 }}
               animate={isTestimonialsInView ? { x: 0, opacity: 1 } : {}}
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
               className="grid grid-cols-2 gap-4"
@@ -1257,7 +1213,7 @@ export default function Home() {
 
       {/* Promotions Section */}
       <section id="promociones" className="py-32 bg-white">
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-4 sm:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-[#0D9488] mb-4">
@@ -1426,8 +1382,8 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contacto" className="py-32 bg-gradient-to-br from-[#ECFEFF] via-[#99F6E4] to-[#ECFEFF]">
-        <div className="container mx-auto px-8">
+      <section id="contacto" className="py-32 bg-gradient-to-br from-[#ECFEFF] via-[#99F6E4] to-[#ECFEFF] overflow-x-hidden">
+        <div className="container mx-auto px-4 sm:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-[#0D9488] mb-4">
@@ -1439,7 +1395,7 @@ export default function Home() {
           </div>
 
           {/* Contact Content */}
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
             {/* Contact Form Left */}
             <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-xl lg:sticky lg:top-8">
               {/* Doctor Avatar */}
@@ -1643,14 +1599,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <motion.footer 
-        ref={footerRef}
-        initial={{ y: 50, opacity: 0 }}
-        animate={isFooterInView ? { y: 0, opacity: 1 } : {}}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-gray-50 border-t border-gray-200 py-8"
-      >
-        <div className="container mx-auto px-8">
+      <footer className="bg-gray-50 border-t border-gray-200 py-8 overflow-x-hidden">
+        <div className="container mx-auto px-4 sm:px-8">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             {/* Logo Left */}
             <div className="flex items-center gap-3">
@@ -1745,7 +1695,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-      </motion.footer>
+      </footer>
 
       {/* Service Popup Modal */}
       {activeServicePopup && servicesData[activeServicePopup] && (
