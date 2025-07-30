@@ -535,7 +535,7 @@ export default function Home() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="space-y-4 lg:space-y-3 flex flex-col lg:flex-row lg:gap-4">
+            <div className="space-y-4 lg:space-y-0 flex flex-col lg:flex-row lg:gap-4">
               <button className="bg-[#0D9488] hover:bg-[#14B8A6] text-white px-6 lg:px-12 py-4 rounded-full text-base font-semibold transition-colors w-full lg:w-auto shadow-lg hover:shadow-xl">
                 Reserva tu Consulta GRATIS
               </button>
@@ -627,7 +627,7 @@ export default function Home() {
               </div>
               
               {/* Doctor Info Card - Desktop */}
-              <div className="-mt-20 ml-6 bg-white rounded-[2rem] pt-24 px-6 pb-6 shadow-xl border border-gray-100 max-w-xs">
+              <div className="-mt-20 bg-white rounded-[2rem] pt-24 px-6 pb-6 shadow-xl border border-gray-100">
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Dra. Paulina Herrera Torres</h3>
                   <p className="text-[#0D9488] font-semibold text-lg">Especialista en Diseño de Sonrisa</p>
