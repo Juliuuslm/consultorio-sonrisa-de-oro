@@ -540,7 +540,7 @@ export default function Home() {
                 Reserva tu Consulta GRATIS
               </button>
               
-              <button className="border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-4 lg:px-8 py-3 rounded-full text-sm lg:text-base font-semibold transition-colors flex items-center justify-center gap-2 lg:gap-3 w-full lg:w-auto">
+              <button className="border-2 border-[#0D9488] text-[#0D9488] hover:bg-[#ECFEFF] px-6 lg:px-12 py-4 rounded-full text-base font-semibold transition-colors flex items-center justify-center gap-2 lg:gap-3 w-full lg:w-auto">
                 <Phone className="w-4 h-4 lg:w-5 lg:h-5" />
                 <span className="hidden sm:inline">Llama Ahora: </span>+52 551 836 6890
               </button>
@@ -616,7 +616,7 @@ export default function Home() {
               initial={{ x: 50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-              className="relative w-full max-w-lg"
+              className="relative w-full max-w-md"
             >
               <div className="relative">
                 <img
@@ -627,7 +627,7 @@ export default function Home() {
               </div>
               
               {/* Doctor Info Card - Desktop */}
-              <div className="-mt-16 ml-8 bg-white rounded-[2rem] pt-20 px-8 pb-8 shadow-xl border border-gray-100 max-w-sm">
+              <div className="-mt-20 ml-6 bg-white rounded-[2rem] pt-24 px-6 pb-6 shadow-xl border border-gray-100 max-w-xs">
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Dra. Paulina Herrera Torres</h3>
                   <p className="text-[#0D9488] font-semibold text-lg">Especialista en Diseño de Sonrisa</p>
